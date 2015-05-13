@@ -1,0 +1,68 @@
+.box-header{
+	display: table;
+	width:100%;
+	  padding: 10px 10px 0 10px;
+}
+.box-header>.box-tools{
+	position: static;
+	float: left;
+	display: table;
+	width:100%;
+}
+.box-tools .pagination{
+	float: left;
+	display: table;
+	width:100%;
+}
+.box-tools .pagination>li{
+	  margin-right:1%;
+	  float: left;
+}
+.box-tools .pagination>li a,.box-tools .pagination>li:first-of-type a,.box-tools .pagination>li:last-of-type a{
+		-webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.box-tools .pagination>li>a{
+	display: block;
+}
+.box-tools .pagination>li>a .glyphicon{
+	margin-right: 5px;
+	float: left;
+	top:2px;
+	line-height:1;
+}
+.table-bordered{
+	margin-top:15px;
+}
+.margin-top-10{
+	margin-top:10px;
+}
+.dataTables_filter label{
+	margin-top:5px;
+}
+.option-select{
+	width:48%;
+}
+#example1_filter .input-group{
+	width:100%;
+}
+#example1_filter .input-group .option-select{
+	max-width:200px;
+}
+.form-control.option-select{
+	padding:4px 12px;
+}
+#example1_filter .btn{
+	border-top-left-radius:0px;
+	border-bottom-left-radius:0px;
+}
+.dataTables_length label{
+	float: left !important;
+}
+.dataTables_length .form-control{
+	float:left;
+	width:40%;
+	padding:4px 12px;
+	margin-right: 15px;
+}
