@@ -1,0 +1,38 @@
+Commit
+$ git commit –a –m “Message Text”
+
+show branch list
+$ git branch
+
+push to remote
+$ git push -u origin branchname
+
+change branch name to another
+$ git checkout branchname
+
+create new branch
+$ git checkout -b newbranchname
+
+show remote directory
+$ git remote show RemoteName
+
+Add files
+$ git add .
+
+
+show unchanged file 
+$ git ls-files -v|grep "^h"
+
+To ignore
+========
+
+git update-index --assume-unchanged application/config/database.php
+git update-index --assume-unchanged application/config/config.php
+
+To Remove ignore
+===============
+
+git update-index --no-assume-unchanged application/config/config.php
+git update-index --no-assume-unchanged application/config/database.php
+
+
