@@ -1,6 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Table extends My_Controller {
+	
+	
+	
 	//public static $MyMember = 99;
 	public $field;
 	 function __construct()
