@@ -1,4 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
 function form_error($field = '', $prefix = '', $suffix = '')
 	{
 		if(isset($_POST['manual_post']))
@@ -16,12 +17,12 @@ function form_error($field = '', $prefix = '', $suffix = '')
 function set_field_value($field = '', $default = '')
 	{
 		$CI =& get_instance();
-		//echo $field;
-		$id=$CI->uri->segment(3);
-		if($id!=NULL && count($_POST)==0){
-			$_POST[$field]=get_data($CI->tbl,array('id'=>$id))->row()->$field;
-			/*$_POST['manual_post']="selva";
-			$_POST['username']="selva";*/
+			//echo $CI->tbl;
+		$id=$CI->uri->segment(4);
+		if($id)
+		echo get_data($CI->tbl,array('id'=>$id))->row()->$field;
+		/*if($id!=NULL && count($_POST)==0){
+		 $_POST[$field]=get_data($CI->tbl,array('id'=>$id))->row()->$field;
 		}
 		if (FALSE === ($OBJ =& _get_validation_object()))
 		{
@@ -33,5 +34,5 @@ function set_field_value($field = '', $default = '')
 			return form_prep($_POST[$field], $field);
 		}
 
-		return form_prep($OBJ->set_value($field, $default), $field);
+		return form_prep($OBJ->set_value($field, $default), $field);*/
 	}

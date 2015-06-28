@@ -20,8 +20,8 @@
                 <div class="box-header">
                     <div class="box-tools">
                     <ul class="pagination pagination-sm no-margin">
-                      <li><a href="#"><span class="glyphicon glyphicon-plus"></span>New</a></li>
-                      <li><a href="#"><span class="glyphicon glyphicon-edit"></span>Edit</a></li>
+                      <li><a href="<?php echo current_url().'edit';?>"><span class="glyphicon glyphicon-plus"></span>New</a></li>
+                      <li id="edit-data"><a href="#"><span class="glyphicon glyphicon-edit"></span>Edit</a></li>
                       <li><a href="#"><span class="glyphicon glyphicon-copy"></span>Copy</a></li>
                       <li><a href="#"><span class="glyphicon glyphicon-ok-sign"></span>Publish</a></li>
                       <li><a href="#"><span class="glyphicon glyphicon-remove-sign"></span>Unpublish</a></li>
@@ -37,25 +37,9 @@
                    <div class="col-xs-9">
                   		<div class="dataTables_filter" id="example1_filter">
                   			<div class="input-group">
-                  				<input type="text" name="table_search" class="form-control input-sm" style="width: 150px;" placeholder="Search">
-                  				<select name="example1_length" size="1" aria-controls="example1" class="form-control option-select">
-                  				<option value="0" selected="selected">Select</option>
-                  				<option value="1">option1</option>
-                  				<option value="2">option2</option>
-                  				<option value="3">option3</option>
-                  				<option value="4">option4</option>
-                  				<option value="5">option5</option>
-                  				<option value="6">option6</option>
-                  				<option value="7">option7</option>
-                  				<option value="8">option8</option>
-                  				<option value="9">option9</option>
-                  				<option value="10">option10</option>
-                  				</select>
-		                      	<div class="input-group-btn" style="display:initial">
-		                        	<button class="btn btn-sm btn-default"><i class="fa fa-search"></i></button>
-		                      	</div>
+                  				<input type="text" name="word" id="word" class="form-control input-sm" style="width: 150px;" placeholder="Search">
 		                      	<div class="input-group-btn clear-button" style="display:initial">
-		                        	<button class="btn btn-sm btn-default"><i class="glyphicon glyphicon-remove"></i></button>
+		                        	<button class="btn btn-sm btn-default" id="remove_search"><i class="glyphicon glyphicon-remove"></i></button>
 		                      	</div>
                     		</div>
                   		</div>
@@ -77,7 +61,7 @@
                   
 						$thead="";
 
-						if(array_key_exists('check-box',$this->tbl_config_field)){
+						if(array_key_exists('check_box',$this->tbl_config_field)){
 
 							$thead.='<th><input type="checkbox" id="selectAll"></th>';
 
@@ -89,7 +73,7 @@
 						
 						foreach($this->tbl_config_field as $key => $value){
 							//($key);
-							$temp = $i==1 ? '<th class="asc"><a href="#" onclick="return false" data-field="'.$key.'" data-direction="asc">'.$value.'</th>' : '<th><a href="#" onclick="return false" data-field="'.$key.'">'.$value.'</th>';
+							$temp = $i==1 ? '<th class="sorting_asc"><a href="#" onclick="return false" data-field="'.$key.'" data-direction="asc">'.$value.'</th>' : '<th><a href="#" onclick="return false" data-field="'.$key.'">'.$value.'</th>';
 							
 							$thead.=$temp;
 							
@@ -108,18 +92,12 @@
 	                    </tr>
                     </thead>
                     <tbody>
-                    
+                    	
                     </tbody>
                   </table>
                 </div><!-- /.box-body -->
                 <div class="box-footer clearfix" id="results">
-                  <ul id="results" class="pagination pagination-sm no-margin pull-right">
-                    <li><a href="#">&laquo;</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">&raquo;</a></li>
-                  </ul>
+                 
                 </div>
               </div><!-- /.box -->
 
@@ -158,16 +136,16 @@
                $($(this).closest("thead").find("th")).each(function(){
                    $(this).attr("class","");
                });
-               if(className=="asc"){
-               	$(this).closest("th").addClass("desc");
+               if(className=="sorting_asc"){
+               	$(this).closest("th").addClass("sorting_desc");
 			   	 $(this).closest("th").find("a").attr("data-direction","desc");
 			   }
-               else if(className=="desc"){
-               	$(this).closest("th").addClass("asc");
+               else if(className=="sorting_desc"){
+               	$(this).closest("th").addClass("sorting_asc");
                	 $(this).closest("th").find("a").attr("data-direction","asc");
 			   }
                else{
-               	$(this).closest("th").addClass("asc");
+               	$(this).closest("th").addClass("sorting_asc");
 			   	$(this).closest("th").find("a").attr("data-direction","asc");
 			   }
                post_data();
@@ -175,8 +153,17 @@
             $(document).on("change","#limit",function(){
                     post_data();
                     //$("#results").on( "click", ".pagination a");
+            });
+            $(document).on("keyup","#word",function(){
+                    post_data();
+                    //$("#results").on( "click", ".pagination a");
+            }) 
+            $(document).on("click","#remove_search",function(){
+                   $("#word").val("");
+                   post_data();
+                    //$("#results").on( "click", ".pagination a");
             })
-            function post_data(limit_start=false){
+            function post_data(limit_start){
                 $("#itemList thead tr th").each(function(){
                     active_class=$(this).attr("class");
                     if(active_class!="" && active_class!==undefined){
@@ -185,13 +172,14 @@
                     }
                 });
                 limit=$("#limit").val();
-                if(limit_start==false)
-                limit_start=$(".pagination").find(".active a").text();
+                if (typeof(limit_start)==='undefined')
+                limit_start=1;
+                word=$("#word").val();
                 trHTML="";
                 $.ajax({
                     url : site_url+"/admin/table/table_response",
                     type: "POST",
-                    data : {order_by_name:order_by_name,order_by:order_by,limit:limit,limit_start:limit_start},
+                    data : {order_by_name:order_by_name,order_by:order_by,limit:limit,limit_start:limit_start,word:word},
                     success: function(data)
                     {
                         trHTML="";
@@ -199,10 +187,17 @@
                         $("#results").html(obj.pagination);
                         table=obj.table;
                         $.each(table, function (i, item) {
-                            trHTML += '<tr>';
-                            trHTML += '<td><input type="checkbox" id="selectAll"></td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.parent + '</td>';
-                            trHTML += '</tr>';
-                        });
+		                	trHTML += '<tr>';
+		                	$.each(item, function (j, itemm) {
+		                		if(j=="id")
+		                		trHTML +='<td><input type="checkbox" row-id="'+itemm+'" class="checkbox"></td>';
+		                		else
+		                		trHTML += '<td>'+itemm+'</td>';
+		                	});
+		                	trHTML += '</tr>';
+		                   // trHTML += '<td><input type="checkbox" id="selectAll"></td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.parent + '</td>';
+		                   
+		                });
                         $("#itemList tbody").html(trHTML);
                     }
                 });
@@ -218,12 +213,11 @@
                 table=obj.table;
                 $.each(table, function (i, item) {
                 	trHTML += '<tr>';
-                	$.each(table, function (j, itemm) {
-                		console.log(itemm);
-                		/*if(itemm.check_box=="check_box")
-                		trHTML += '<td><input type="checkbox" id="selectAll"></td>';
+                	$.each(item, function (j, itemm) {
+                		if(j=="id")
+                		trHTML +='<td><input type="checkbox" row-id="'+itemm+'" class="checkbox"></td>';
                 		else
-                		console.log(itemm);*/
+                		trHTML += '<td>'+itemm+'</td>';
                 	});
                 	trHTML += '</tr>';
                    // trHTML += '<td><input type="checkbox" id="selectAll"></td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.parent + '</td>';
@@ -236,6 +230,14 @@
             var page = $(this).attr("data-page");
             post_data(page);
         });
+        $("#edit-data").click(function(){
+		  checkbox_id=$('input:checkbox:checked').attr("row-id");
+		  if(typeof checkbox_id=="undefined")
+		  alert("Please select checkbox...");
+		  else
+		  window.location="<?php echo current_url();?>/edit/"+checkbox_id;
+		});
+        
 
         });
     </script>

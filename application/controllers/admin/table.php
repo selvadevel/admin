@@ -1,39 +1,22 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Table extends My_Controller {
-	
-	
-	
-	//public static $MyMember = 99;
 	public $field;
 	 function __construct()
     {
         parent::__construct();
-        $this->tbl="test";
+        $this->tbl="tbl_users";
         $this->tbl_config_field=array(
         							'check_box'=>TRUE,
-	        						'name'=>'Company',
-	        						'parent'=>'Parent Name',
-	        						'id'=>'ID'
-        						);
-        						
-       $this->field=array("shirts"=>"","username1"=>"","username"=>"","password"=>"","passconf"=>"","email"=>"");
+	        						'name'=>'userName',
+	        						'email'=>'email',
+	        						'profile_image'=>'Profile Image'
+        						);					
     }
 	public function index()
 	{
 		$tbl="";
-		/*$query=$this->db->query("SELECT id,name,`desc`,DATE_FORMAT(created_date, '%d/%m/%Y') as created_date,status FROM ".$this->tbl);
-		$tbl_header=array("S NO","category Name","category Desc","Created Date",array("Edit","Status","Delete"));
-		$tbl=$this->makeTable($query,$tbl_header);*/
 		$basicUrl=$this->config->item("basicUrl");
-		$query=$this->db->query("select * from test order by name asc");
-		if($query->num_rows()){
-			$i=1;
-			foreach($query->result() as $row){
-				$tbl.="<tr><td><input type='checkbox'></td><td>".$row->name."</td><td>".$row->parent."</td></tr>";
-				$i++;
-			}
-		}
 		$basicUrl['tbl']=$this->config->item("basicUrl");
 		$this->parser->parse('admin/includes/header',$this->config->item("basicUrl"));
 		$this->parser->parse('admin/includes/left_side',$this->config->item("basicUrl"));
@@ -42,34 +25,21 @@ class Table extends My_Controller {
 	}
 
 	public function edit($id=NULL){
+		$data['action_btn'] = $id == NULL ? "Save" : "Update";
 		$this->load->helper(array('form', 'url'));
 		$this->load->library('form_validation');
 		$basicUrl['tbl']=$this->config->item("basicUrl");
-		
-		
-		$this->set_all_rules();
-		$this->manage_post_element();
-		if ($this->form_validation->run() == FALSE)
-		{
-			$this->load->view('myform');
-		}
-		else
-		{
-			$this->load->view('formsuccess');
-		}
+		$this->manage_post_element($id);
+		$this->load->view('myform',$data);
 	}
-	public function set_all_rules($arr=FALSE){
-		
-		foreach($this->field as $key => $value){
-			$this->form_validation->set_rules($key, ucfirst($key), 'required');
-		}
-	}
-	public function manage_post_element(){
+	public function manage_post_element($id){
 		/*$field=$this->field;*/
-		if ($this->form_validation->run() == FALSE)
-		{
-			//extract()
-		}
+		if(isset($_POST['submit'])){
+				if($_POST['submit']=="Save")
+				$this->save($_POST,FALSE,array("name"=>$_POST['name']));
+				else
+				$this->save($_POST,array('id'=>$id));
+			}
 	}
 	
 	public function table_response(){
@@ -84,15 +54,19 @@ class Table extends My_Controller {
 		
 		
 		if(array_key_exists('check_box',$this->tbl_config_field)){
-
+			
 			unset($this->tbl_config_field['check_box']);
 			
-			$this->tbl_config_field["'check_box' as check_box"]="";
+			//$this->tbl_config_field["'check_box' as check_box"]="";
 		}
-	
-		$result=$this->db->query("select ".implode(",",array_keys($this->tbl_config_field))." from ".$this->tbl." order by ".$order_by_name." ".$order_by." limit ".$page_position.",".$limit);
 		
-		$total_records=$this->db->query("select * from ".$this->tbl)->num_rows();
+		$whr=isset($word) && ($word!="") ?  " WHERE ".implode(" LIKE '%".$word."%' or ",array_keys($this->tbl_config_field))." LIKE '%".$word."%' " : "";
+		
+		//echo "select ".implode(",",array_keys($this->tbl_config_field))." from ".$this->tbl." order by ".$order_by_name." ".$order_by." limit ".$page_position.",".$limit;
+	
+		$result=$this->db->query("select id,".implode(",",array_keys($this->tbl_config_field))." from ".$this->tbl.$whr." order by ".$order_by_name." ".$order_by." limit ".$page_position.",".$limit);
+		
+		$total_records=$this->db->query("select * from ".$this->tbl.$whr)->num_rows();
 		
 		$total_pages=ceil($total_records/$limit);
 		
@@ -146,11 +120,7 @@ class Table extends My_Controller {
 	    }
 	    return $pagination; //return pagination links
 	}
-	public function makeTable(){
-		$this->load->library("table");
-		$this->set_table_template($result);
-		return $this->table->set_heading($tbl_header);
-	}
+	
 }
 
 /* End of file welcome.php */
